@@ -80,11 +80,16 @@ func RedRoutine(target string, rec chan *Red) {
 	rec <- r.Get()
 }
 
-type Result struct {
+type ResultRED struct {
 	NumRequestPerSecond          int
 	NumRequestWithErrorPerSecond int
 	NumNetworkErrorPerSecond     int
 	AverageDuration              time.Duration
+}
+
+type ResultError struct {
+	ErrorType                    int
+	NumRequestWithErrorPerSecond int
 }
 
 // calculateRed takes a slice of Red structs and returns a map where the keys
@@ -92,14 +97,15 @@ type Result struct {
 // values are Results which contain the total number of requests sent in that
 // second, the number of requests that returned an error, and the average
 // duration of the requests in that second.
-func calculateRed(recs []*Red) map[string]*Result {
+func calculateRed(recs []*Red) (map[string]*ResultRED, map[int]*ResultError) {
 
-	mapRecs := make(map[string]*Result)
+	mapRecs := make(map[string]*ResultRED)
+	mapErrs := make(map[int]*ResultError)
 
 	for _, rec := range recs {
 		s := fmt.Sprintf("%d", rec.SentAt.Minute()*100+rec.SentAt.Second())
 		if mapRecs[s] == nil {
-			mapRecs[s] = &Result{}
+			mapRecs[s] = &ResultRED{}
 		}
 		mapRecs[s].NumRequestPerSecond++
 		if rec.StatusCode == -1 {
@@ -107,10 +113,15 @@ func calculateRed(recs []*Red) map[string]*Result {
 		}
 		if rec.StatusCode != 200 && rec.StatusCode != -1 {
 			mapRecs[s].NumRequestWithErrorPerSecond++
+
+			if mapErrs[rec.StatusCode] == nil {
+				mapErrs[rec.StatusCode] = &ResultError{ErrorType: rec.StatusCode, NumRequestWithErrorPerSecond: 0}
+			}
+			mapErrs[rec.StatusCode].NumRequestWithErrorPerSecond++
 		}
 		mapRecs[s].AverageDuration = mapRecs[s].AverageDuration + rec.ReceivedAt.Sub(rec.SentAt)
 	}
-	return mapRecs
+	return mapRecs, mapErrs
 }
 
 // main is the entry point for the CLI application. It parses command-line flags
@@ -142,11 +153,10 @@ func main() {
 	}
 
 	for i := 0; i < numtests; i++ {
-		r := <-rec
-		recs = append(recs, r)
+		recs = append(recs, <-rec)
 	}
 
-	result := calculateRed(recs)
+	result, errors := calculateRed(recs)
 
 	keys := make([]string, 0, len(result))
 	for k := range result {
@@ -158,6 +168,17 @@ func main() {
 	for _, v := range keys {
 		fmt.Printf("%-7s\t%10s\t%10s\t%10v\t%10s\n", v, p.Sprintf("%d", result[v].NumRequestPerSecond), p.Sprintf("%d", result[v].NumRequestWithErrorPerSecond), result[v].AverageDuration/time.Duration(result[v].NumRequestPerSecond-result[v].NumNetworkErrorPerSecond+1), p.Sprintf("%d", result[v].NumNetworkErrorPerSecond))
 	}
+
+	keys2 := make([]int, 0, len(errors))
+	for k := range errors {
+		keys2 = append(keys2, k)
+	}
+	sort.Ints(keys2)
+	fmt.Printf("\n%-7s\t%10s\n", "Error", "# Errors")
+	for _, v := range keys2 {
+		fmt.Printf("%-7s\t%10s\n", p.Sprintf("%d", v), p.Sprintf("%d", errors[v].NumRequestWithErrorPerSecond))
+	}
+
 	log.Println("Tests finished.")
 
 }
