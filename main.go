@@ -85,6 +85,8 @@ type ResultRED struct {
 	NumRequestWithErrorPerSecond int
 	NumNetworkErrorPerSecond     int
 	AverageDuration              time.Duration
+	MaxDuration                  time.Duration
+	MinDuration                  time.Duration
 }
 
 type ResultError struct {
@@ -120,6 +122,15 @@ func calculateRed(recs []*Red) (map[string]*ResultRED, map[int]*ResultError) {
 			mapErrs[rec.StatusCode].NumRequestWithErrorPerSecond++
 		}
 		mapRecs[s].AverageDuration = mapRecs[s].AverageDuration + rec.ReceivedAt.Sub(rec.SentAt)
+
+		if rec.ReceivedAt.Sub(rec.SentAt) > mapRecs[s].MaxDuration {
+			mapRecs[s].MaxDuration = rec.ReceivedAt.Sub(rec.SentAt)
+		}
+		if rec.ReceivedAt.Sub(rec.SentAt) < mapRecs[s].MinDuration && mapRecs[s].MinDuration != 0 {
+			mapRecs[s].MinDuration = rec.ReceivedAt.Sub(rec.SentAt)
+		} else if mapRecs[s].MinDuration == 0 {
+            mapRecs[s].MinDuration = rec.ReceivedAt.Sub(rec.SentAt)
+        }
 	}
 	return mapRecs, mapErrs
 }
@@ -164,9 +175,9 @@ func main() {
 	}
 	sort.Strings(keys)
 	p := message.NewPrinter(language.English)
-	fmt.Printf("%-7s\t%10s\t%10s\t%10s\t%10s\n", "Min/Seg", "Rate", "Error", "Avg Time", "Net Error")
+	fmt.Printf("%-7s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\n", "Min/Seg", "Rate", "Error", "Avg Time", "Min Time", "Max Time", "Net Error")
 	for _, v := range keys {
-		fmt.Printf("%-7s\t%10s\t%10s\t%10v\t%10s\n", v, p.Sprintf("%d", result[v].NumRequestPerSecond), p.Sprintf("%d", result[v].NumRequestWithErrorPerSecond), result[v].AverageDuration/time.Duration(result[v].NumRequestPerSecond-result[v].NumNetworkErrorPerSecond+1), p.Sprintf("%d", result[v].NumNetworkErrorPerSecond))
+		fmt.Printf("%-7s\t%10s\t%10s\t%10v\t%10v\t%10v\t%10s\n", v, p.Sprintf("%d", result[v].NumRequestPerSecond), p.Sprintf("%d", result[v].NumRequestWithErrorPerSecond), result[v].AverageDuration/time.Duration(result[v].NumRequestPerSecond-result[v].NumNetworkErrorPerSecond+1), result[v].MinDuration, result[v].MaxDuration, p.Sprintf("%d", result[v].NumNetworkErrorPerSecond))
 	}
 
 	keys2 := make([]int, 0, len(errors))
