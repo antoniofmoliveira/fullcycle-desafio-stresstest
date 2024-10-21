@@ -1,0 +1,5 @@
+module github.com/antoniofmoliveira/fullcycle-desafio-stresstest
+
+go 1.23.2
+
+require golang.org/x/text v0.19.0
