@@ -1,0 +1,5 @@
+testpost:
+	go run cmd/main.go --numtests 400000 -requesttype "POST" -payload '{"message":"World"}' -endpoint "http://localhost:8080/hello/message"
+
+testget:
+	go run cmd/main.go --numtests 400000 -requesttype "GET" -endpoint "http://localhost:8080/hello"
