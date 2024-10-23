@@ -22,16 +22,9 @@ func (r *Red) Get(client *http.Client) *Red {
 		panic(err)
 	}
 	r.SentAt = time.Now()
-	var res *http.Response
-	for i := 0; i < 3; i++ {
-		time.Sleep(1 * time.Microsecond)
-		res, err = client.Do(req)
-		if err == nil {
-			break
-		}
-	}
+
+	res, err := client.Do(req)
 	if err != nil {
-		log.Println(err)
 		r.ReceivedAt = time.Now()
 		r.StatusCode = -1
 		return r
@@ -54,16 +47,9 @@ func (r *Red) Post(client *http.Client) *Red {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	r.SentAt = time.Now()
-	var res *http.Response
-	for i := 0; i < 3; i++ {
-		time.Sleep(1 * time.Microsecond)
-		res, err = client.Do(req)
-		if err == nil {
-			break
-		}
-	}
+
+	res, err := client.Do(req)
 	if err != nil {
-		log.Println(err)
 		r.ReceivedAt = time.Now()
 		r.StatusCode = -1
 		return r
@@ -74,7 +60,7 @@ func (r *Red) Post(client *http.Client) *Red {
 		log.Println(err)
 	}
 	res.Body.Close()
-	
+
 	r.ReceivedAt = time.Now()
 	r.StatusCode = res.StatusCode
 	return r

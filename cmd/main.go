@@ -38,11 +38,11 @@ func main() {
 	wg.Add(numtests)
 
 	if requestType == "GET" {
-		uGet := usecase.NewHttpGet(client, endpoint, numtests, 1, rec)
+		uGet := usecase.NewHttpGet(client, endpoint, numtests, 500, rec)
 		go uGet.ExecuteGet(ctx, &wg)
 
 	} else if requestType == "POST" {
-		uPost := usecase.NewHttpPost(client, endpoint, numtests, 2, payload, rec)
+		uPost := usecase.NewHttpPost(client, endpoint, numtests, 500, payload, rec)
 		go uPost.ExecutePost(ctx, &wg)
 	}
 

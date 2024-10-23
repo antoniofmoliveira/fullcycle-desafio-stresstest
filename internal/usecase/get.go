@@ -11,20 +11,20 @@ import (
 )
 
 type HttpGet struct {
-	Client        *http.Client
-	Target        string
-	ReturnChannel chan *dto.Red
-	NumRequests   int
-	Interval      int
+	Client              *http.Client
+	Target              string
+	ReturnChannel       chan *dto.Red
+	NumRequests         int
+	IntervalNanoseconds int
 }
 
 func NewHttpGet(client *http.Client, target string, numRequests int, interval int, rec chan *dto.Red) *HttpGet {
 	return &HttpGet{
-		Client:        client,
-		Target:        target,
-		ReturnChannel: rec,
-		NumRequests:   numRequests,
-		Interval:      interval,
+		Client:              client,
+		Target:              target,
+		ReturnChannel:       rec,
+		NumRequests:         numRequests,
+		IntervalNanoseconds: interval,
 	}
 }
 
@@ -34,8 +34,8 @@ func (h *HttpGet) ExecuteGet(ctx context.Context, wg *sync.WaitGroup) {
 		case <-ctx.Done():
 			return
 		default:
-			if h.Interval > 0 {
-				time.Sleep(time.Duration(h.Interval) * time.Microsecond)
+			if h.IntervalNanoseconds > 0 {
+				time.Sleep(time.Duration(h.IntervalNanoseconds) * time.Nanosecond)
 			}
 			go func(client *http.Client, target string, rec chan *dto.Red, wg *sync.WaitGroup) {
 				r := &entity.Red{

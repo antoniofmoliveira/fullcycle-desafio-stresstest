@@ -37,7 +37,7 @@ func (h *HttpPost) ExecutePost(ctx context.Context, wg *sync.WaitGroup) {
 			return
 		default:
 			if h.Interval > 0 {
-				time.Sleep(time.Duration(h.Interval) * time.Microsecond)
+				time.Sleep(time.Duration(h.Interval) * time.Nanosecond)
 			}
 			go func(client *http.Client, target string, rec chan *dto.Red, wg *sync.WaitGroup) {
 				r := &entity.Red{
