@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
+	"os"
 	"sync"
 
 	"github.com/antoniofmoliveira/fullcycle-desafio-stresstest/internal/db"
@@ -17,6 +18,8 @@ import (
 )
 
 func main() {
+
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 
 	endpoint, numtests, requestType, payload := handleFlags()
 
@@ -32,7 +35,7 @@ func main() {
 	client := pool.GetHttpClient()
 	defer client.CloseIdleConnections()
 
-	log.Println("Tests starting...")
+	slog.Info("Tests starting...")
 	fmt.Println(" Running ", numtests, " tests for endpoint ", endpoint)
 	wg := sync.WaitGroup{}
 	wg.Add(numtests)
@@ -60,7 +63,7 @@ func main() {
 
 	report.ReportPercentiles(percentiles)
 
-	log.Println("Tests finished.")
+	slog.Info("Tests finished.")
 
 }
 
@@ -91,7 +94,8 @@ func handleFlags() (string, int, string, string) {
 
 	if len(errors) > 0 {
 		for _, v := range errors {
-			log.Println(v)
+			slog.Error(v)
+			panic(v)
 		}
 		panic("Invalid flags")
 	}

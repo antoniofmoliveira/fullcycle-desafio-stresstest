@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"log"
+	"log/slog"
 
 	"github.com/antoniofmoliveira/fullcycle-desafio-stresstest/internal/dto"
 )
@@ -27,11 +27,10 @@ func (d *DB) Store(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			// log.Println("Storing...")
 			r := <-d.input
 			_, err := d.db.Exec("INSERT INTO red (target, sent_at, received_at, status_code, duration) VALUES ( ?, ?, ?, ?, ?)", r.Target, r.SentAt, r.ReceivedAt, r.StatusCode, r.Duration)
 			if err != nil {
-				log.Println(err)
+				slog.Error("db.Store", "msg", err.Error())
 			}
 		}
 	}
@@ -40,7 +39,7 @@ func (d *DB) Store(ctx context.Context) {
 func (d *DB) getReds(query string) []*dto.Red {
 	rows, err := d.db.Query(query)
 	if err != nil {
-		log.Println(err)
+		slog.Error("db.getReds", "msg", err.Error())
 	}
 	defer rows.Close()
 	var reds []*dto.Red
@@ -48,7 +47,7 @@ func (d *DB) getReds(query string) []*dto.Red {
 		r := &dto.Red{}
 		err := rows.Scan(&r.Target, &r.SentAt, &r.ReceivedAt, &r.StatusCode, &r.Duration)
 		if err != nil {
-			log.Println(err)
+			slog.Error("db.getReds scan", "msg", err.Error())
 		}
 		reds = append(reds, r)
 	}

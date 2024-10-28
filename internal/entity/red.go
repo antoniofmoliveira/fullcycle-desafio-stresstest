@@ -2,7 +2,7 @@ package entity
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -19,6 +19,7 @@ type Red struct {
 func (r *Red) Get(client *http.Client) *Red {
 	req, err := http.NewRequest("GET", r.Target, nil)
 	if err != nil {
+		slog.Error("(*Red).Get", "msg", err.Error())
 		panic(err)
 	}
 	r.SentAt = time.Now()
@@ -31,7 +32,7 @@ func (r *Red) Get(client *http.Client) *Red {
 	}
 	_, err = io.Copy(io.Discard, res.Body)
 	if err != nil {
-		log.Println(err)
+		slog.Error("(*Red).Get io.Copy", "msg", err.Error())
 	}
 	res.Body.Close()
 
@@ -43,6 +44,7 @@ func (r *Red) Get(client *http.Client) *Red {
 func (r *Red) Post(client *http.Client) *Red {
 	req, err := http.NewRequest("POST", r.Target, strings.NewReader(r.Payload))
 	if err != nil {
+		slog.Error("(*Red).Post", "msg", err.Error())
 		panic(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -57,7 +59,7 @@ func (r *Red) Post(client *http.Client) *Red {
 
 	_, err = io.Copy(io.Discard, res.Body)
 	if err != nil {
-		log.Println(err)
+		slog.Error("(*Red).Post io.Copy", "msg", err.Error())
 	}
 	res.Body.Close()
 

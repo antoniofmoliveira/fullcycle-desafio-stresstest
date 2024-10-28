@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"log/slog"
 	"net"
 	"net/http"
 	"strings"
@@ -27,11 +28,13 @@ func GetHttpClient() *http.Client {
 func TestEndpoint(method string, url string, payload string) error {
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
+		slog.Error("TestEndpoint", "msg", err.Error())
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	res, err := GetHttpClient().Do(req)
 	if err != nil {
+		slog.Error("TestEndpoint Do", "msg", err.Error())
 		return err
 	}
 	defer res.Body.Close()
