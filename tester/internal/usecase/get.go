@@ -10,7 +10,7 @@ import (
 	"github.com/antoniofmoliveira/fullcycle-desafio-stresstest/internal/entity"
 )
 
-type HttpGet struct {
+type httpGet struct {
 	Client              *http.Client
 	Target              string
 	ReturnChannel       chan *dto.Red
@@ -18,8 +18,8 @@ type HttpGet struct {
 	IntervalNanoseconds int
 }
 
-func NewHttpGet(client *http.Client, target string, numRequests int, interval int, rec chan *dto.Red) *HttpGet {
-	return &HttpGet{
+func NewHttpGet(client *http.Client, target string, numRequests int, interval int, rec chan *dto.Red) *httpGet {
+	return &httpGet{
 		Client:              client,
 		Target:              target,
 		ReturnChannel:       rec,
@@ -28,7 +28,7 @@ func NewHttpGet(client *http.Client, target string, numRequests int, interval in
 	}
 }
 
-func (h *HttpGet) ExecuteGet(ctx context.Context, wg *sync.WaitGroup) {
+func (h *httpGet) ExecuteGet(ctx context.Context, wg *sync.WaitGroup) {
 	for i := 0; i < h.NumRequests; i++ {
 		select {
 		case <-ctx.Done():

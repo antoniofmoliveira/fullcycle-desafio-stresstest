@@ -10,7 +10,7 @@ import (
 	"github.com/antoniofmoliveira/fullcycle-desafio-stresstest/internal/entity"
 )
 
-type HttpPost struct {
+type httpPost struct {
 	Client        *http.Client
 	Target        string
 	ReturnChannel chan *dto.Red
@@ -19,8 +19,8 @@ type HttpPost struct {
 	Payload       string
 }
 
-func NewHttpPost(client *http.Client, target string, numRequests int, interval int, payload string, rec chan *dto.Red) *HttpPost {
-	return &HttpPost{
+func NewHttpPost(client *http.Client, target string, numRequests int, interval int, payload string, rec chan *dto.Red) *httpPost {
+	return &httpPost{
 		Client:        client,
 		Target:        target,
 		ReturnChannel: rec,
@@ -30,7 +30,7 @@ func NewHttpPost(client *http.Client, target string, numRequests int, interval i
 	}
 }
 
-func (h *HttpPost) ExecutePost(ctx context.Context, wg *sync.WaitGroup) {
+func (h *httpPost) ExecutePost(ctx context.Context, wg *sync.WaitGroup) {
 	for i := 0; i < h.NumRequests; i++ {
 		select {
 		case <-ctx.Done():
