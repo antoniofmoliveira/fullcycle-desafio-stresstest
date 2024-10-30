@@ -87,7 +87,7 @@ func handleFlags() (string, int, string, string) {
 	if err != nil {
 		errors = append(errors, "Payload is not valid JSON")
 	}
-	err = pool.TestEndpoint(*requestType, *endpoint, *payload)
+	err = pool.StressEndpoint(*requestType, *endpoint, *payload)
 	if err != nil {
 		errors = append(errors, err.Error())
 	}

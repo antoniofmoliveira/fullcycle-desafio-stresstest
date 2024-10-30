@@ -32,6 +32,7 @@ func (h *httpGet) ExecuteGet(ctx context.Context, wg *sync.WaitGroup) {
 	for i := 0; i < h.NumRequests; i++ {
 		select {
 		case <-ctx.Done():
+			wg.Done()
 			return
 		default:
 			if h.IntervalNanoseconds > 0 {

@@ -1,6 +1,8 @@
 package pool
 
 import (
+	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -25,7 +27,7 @@ func GetHttpClient() *http.Client {
 
 }
 
-func TestEndpoint(method string, url string, payload string) error {
+func StressEndpoint(method string, url string, payload string) error {
 	req, err := http.NewRequest(method, url, strings.NewReader(payload))
 	if err != nil {
 		slog.Error("TestEndpoint", "msg", err.Error())
@@ -37,6 +39,11 @@ func TestEndpoint(method string, url string, payload string) error {
 		slog.Error("TestEndpoint Do", "msg", err.Error())
 		return err
 	}
+	if res.StatusCode != 200 {
+		slog.Error("TestEndpoint StatusCode", "msg", res.StatusCode)
+		return fmt.Errorf("TestEndpoint StatusCode: %d", res.StatusCode)
+	}
 	defer res.Body.Close()
+	io.Copy(io.Discard, res.Body)
 	return nil
 }

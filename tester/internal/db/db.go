@@ -66,6 +66,6 @@ func (d *DB) GetRedWithErrors() []*dto.Red {
 	return d.getReds("SELECT target, sent_at, received_at, status_code, duration FROM red WHERE status_code != 200")
 }
 
-func (d *DB) Close() {
-	d.db.Close()
+func (d *DB) Close() error {
+	return d.db.Close()
 }

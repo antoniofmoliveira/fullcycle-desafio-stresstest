@@ -4,31 +4,35 @@ Desenvolver um sistema de linha de comando (CLI) em Go para executar testes de c
 
 ## Solução
 
-Implementação de app para obter indicadores RED de um endpoint, conforme a definição:
+- `server` contém um servidor http contendo API com 2 endpoints que utiliza um rate limiter <https://github.com/antoniofmoliveira/fullcycle-desafio-ratelimiter.git> que recusar conexões (429), pode simular erros (500) e pode simular lentidão nas respostas.
 
-- Rate: The number of requests or events processed per unit of time.
+- `tester` contém uma app CLI que objetiva realizar stress test em endpoints GET e POST.
 
-- Errors: The frequency and types of errors occurring during request processing.
+  - Implementação de app para obter indicadores RED de um endpoint, conforme a definição:
 
-- Duration: The time taken to process requests, including latency and throughput.
+    - Rate: The number of requests or events processed per unit of time.
 
-A app executa uma quantidade de requests:
+    - Errors: The frequency and types of errors occurring during request processing.
 
-- armazena em memória os resultados dos requests
+    - Duration: The time taken to process requests, including latency and throughput.
 
-- aceita flag para a quantidade de testes
+  - A app executa uma quantidade de requests:
 
-- aceita flag para o endpoint a ser testado
+    - armazena em memória os resultados dos requests
 
-- aceita flag para o intervalo entre cada request em microsegundos. isso é necessário para não esgotar os recursos da máquina executando a app
+    - aceita flag para a quantidade de testes
 
-- usa pool de conexões e implementa repetição de request até 3 vezes com intervalo de 1 microsegundo. no caso de insucesso registra como erro de rede.
+    - aceita flag para o endpoint a ser testado
 
-- apresenta resumo contendo para cada segundo a quantidade de requisições, a quantidade de erros recebidas do endpoint, o tempo médio das requisições naquele segundo, a quantiade de vezes que não foi possível conectar por limitação local.
+    - aceita flag para o intervalo entre cada request em microsegundos. isso é necessário para não esgotar os recursos da máquina executando a app
 
-- apresenta resumo por status
+    - usa pool de conexões e implementa repetição de request até 3 vezes com intervalo de 1 microsegundo. no caso de insucesso registra como erro de rede.
 
-- apresenta resumo em varios percentis de duração
+    - apresenta resumo contendo para cada segundo a quantidade de requisições, a quantidade de erros recebidas do endpoint, o tempo médio das requisições naquele segundo, a quantiade de vezes que não foi possível conectar por limitação local.
+
+    - apresenta resumo por status
+
+    - apresenta resumo em varios percentis de duração
 
 ## para testar
 
