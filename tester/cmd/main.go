@@ -45,7 +45,7 @@ func main() {
 		go uGet.ExecuteGet(ctx, &wg)
 
 	} else if requestType == "POST" {
-		uPost := usecase.NewHttpPost(client, endpoint, numtests, 500, payload, rec)
+		uPost := usecase.NewHttpPost(client, endpoint, numtests, 1000, payload, rec)
 		go uPost.ExecutePost(ctx, &wg)
 	}
 
